@@ -1,8 +1,8 @@
-//add keyboard input and stuff that can be done with keyboard input
 
 #include<GL/glew.h>
 #include<stdlib.h>
 #include<math.h>
+#include<vector>
 #include "loader.h"
 
 int WINDOW_HEIGHT=500;
@@ -49,13 +49,18 @@ void keyPressOperation(){
 
 
 void render(){
-    Loader load("scene1_v2.obj");
+    Loader load("scene1_v2.obj","scene1_v2.mtl");
     std::vector<std::vector<GLfloat>> vertex = load.getVertex();
 
     // glColor3f(1.0f,1.0f,1.0f);
 
-    for(int j=0;j<load.numOfObjects();j++){
+    for(int j=1;j<load.numOfObjects();j++){
         object obj = load.getObj(j);
+        
+        std::vector<GLfloat> v = load.getValue(obj.material);
+
+        glColor3f(v[0],v[1],v[2]);
+
         for(int i=0;i<obj.faceVertex.size();i++){
             glBegin(GL_QUADS);
                 glVertex3f(vertex[obj.faceVertex[i][0]][0],vertex[obj.faceVertex[i][0]][1],vertex[obj.faceVertex[i][0]][2]);

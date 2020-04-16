@@ -5,61 +5,44 @@
 #include<vector>
 #include "loader.h"
 
-int WINDOW_HEIGHT=500;
-int WINDOW_WIDTH=500;
+int WINDOW_HEIGHT=800;
+int WINDOW_WIDTH=800;
 bool ispressed[256]={0};
-GLfloat zoomed = -5.0f;
-GLfloat scale = 1.0f;
-GLfloat xRot=0.0f;
-GLfloat yRot=0.0f;
+float xpos=5.0f, ypos=5.0f,zpos=5.0f;
+float xrot=0.0f, yrot=0.0f ,zrot=0.0f;
+float factor=0.02f;
 
+void keyOperations (void) {
+    if (ispressed['a']) xpos-= factor;//translation along x-axis
+    if (ispressed['d']) xpos+= factor;
+    if (ispressed['w']) ypos-= factor;//translation along y-axis
+    if (ispressed['s']) ypos+= factor;
+    if (ispressed['e']) zpos-= factor;//translation along z-axis
+    if (ispressed['q']) zpos+= factor;
+        
+    if (ispressed['l']) yrot+= factor;//rotation along y axis
+    if (ispressed['j']) yrot-= factor;
+    if (ispressed['i']) xrot+= factor;//rotation along x axis
+    if (ispressed['k']) xrot-= factor;
+    if (ispressed['o']) zrot+= factor;//rotation along z axis
+    if (ispressed['u']) zrot-= factor;
 
-float xpos=0,ypos=0,zpos=-5.0f;
+    if (ispressed['c']) factor-=0.004f;//reseting the factor
+    if (ispressed['v']) factor+=0.004f;
 
-
-void keyPressOperation(){
-    if(ispressed['z']){
-        //zoom
-        // zoomed+=0.5f;
-        // glTranslatef(0.0f, 0.0f, zoomed);
-    }
-    if(ispressed['d']){
-        scale+=0.02f;
-    }
-    if(ispressed['a']){
-        scale-=0.02f;
-    }
-    if(ispressed['l']){
-        xRot+=1.0f;
-    }
-    if(ispressed['j']){
-        xRot-=1.0f;
-    }
-    if(ispressed['i']){
-        yRot+=1.0f;
-    }
-    if(ispressed['k']){
-        yRot-=1.0f;
-    }
-    if(ispressed['q']){
-        exit(0);
-    }
-
+    if (ispressed['x']) exit(0);
 }
 
 
 void render(){
-    Loader load("scene1_v2.obj","scene1_v2.mtl");
+    Loader load("owmoon.obj","owmoon.mtl");
     std::vector<std::vector<GLfloat>> vertex = load.getVertex();
-
-    // glColor3f(1.0f,1.0f,1.0f);
 
     for(int j=1;j<load.numOfObjects();j++){
         object obj = load.getObj(j);
         
         std::vector<GLfloat> v = load.getValue(obj.material);
-
-        glColor3f(v[0],v[1],v[2]);
+        glColor4f(v[0],v[1],v[2],1.0f);
 
         for(int i=0;i<obj.faceVertex.size();i++){
             glBegin(GL_QUADS);
@@ -70,50 +53,28 @@ void render(){
             glEnd();
         }
     }
-    
+    //insert a teapot if time remains
 }
 
-//dummy render functions 
-void render1(){
-    glColor3f(1,1,1);
-    glBegin(GL_QUADS);
-        glVertex3f(1,-1,0);
-        glVertex3f(2,2,0);
-        glVertex3f(3,-3,0);
-        glVertex3f(4,4,0);
-    glEnd();
-}
-void renderPrimitive (void) {  
-    glBegin(GL_QUADS); // Start drawing a quad primitive  
-    
-    glVertex3f(-1.0f, -1.0f, 0.0f); // The bottom left corner  
-    glVertex3f(-1.0f, 1.0f, 0.0f); // The top left corner  
-    glVertex3f(1.0f, 1.0f, 0.0f); // The top right corner  
-    glVertex3f(1.0f, -1.0f, 0.0f); // The bottom right corner  
-    
-    glEnd();  
-}
 
+void camera(){
+    glRotatef(xrot,1.0,0.0,0.0);
+    glRotatef(yrot,0.0,1.0,0.0);
+    glRotatef(zrot,0.0,0.0,1.0);
+    glTranslatef(-xpos,-ypos,-zpos);
+}
 
 void display(void){
-    glClearColor(0.0f,0.0f,0.0f,1.0f);  //sets background colour to black
+    keyOperations();
 
-
-    keyPressOperation();
-    //clearing previos data out
+    glClearColor(0.0f,0.0f,0.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -5.0f);
-
-    //camera commands
-    glScalef(scale,scale,scale);
-    glRotatef(xRot,1.0,0.0,0.0);
-    glRotatef(yRot,0.0,1.0,0.0);
+    
+    camera();
 
     render();
 
-    //flushes buffers to screen
-    // glFlush();
     glutSwapBuffers();
 }
 
@@ -145,7 +106,6 @@ int main(int argc, char **argv){
     glutCreateWindow ("3D Scene");
 
     glutDisplayFunc(display);
-
     glutIdleFunc(display);
 
     glutReshapeFunc(reshape);
@@ -154,5 +114,4 @@ int main(int argc, char **argv){
     glutKeyboardUpFunc(keyUp);
 
     glutMainLoop();
-
 }

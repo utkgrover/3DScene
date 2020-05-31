@@ -23,7 +23,7 @@ git clone https://github.com/utkgrover/3DScene.git
 to run :
 
 ```
-make
+make main
 ```
 
 to delete the object files
